@@ -24,10 +24,39 @@ const isSearched = (searchTerm) => (item) =>
   item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
   item.author.toLowerCase().includes(searchTerm.toLowerCase()) 
 
+const Search = ({ value, onChange, children }) =>
+  <form>
+    {children} <input
+      type="text"
+      value={value}
+      onChange={onChange}
+  /> </form>
+
+const Table = ({list, searchTerm, onDismiss}) =>
+  <div>
+      {list.filter(isSearched(searchTerm)).map( item => 
+        <div key={item.objectID}> 
+          <span>
+            <a href={item.url}>{item.title}</a>
+          </span>
+          <span>{item.author}</span>
+          <span>{item.num_comments}</span>
+          <span>{item.points}</span>
+          <span>
+            <button onClick={() => onDismiss(item.objectID)} type="button">
+              Dismiss
+            </button>
+          </span>
+        </div>
+        )
+      }
+  </div>
+
 class App extends Component {
   constructor(props){
     super(props)
     this.state = {list, searchTerm: '',}
+    this.onDismiss = this.onDismiss.bind(this)
     this.onSearchChange = this.onSearchChange.bind(this)
   }
 
@@ -42,29 +71,19 @@ class App extends Component {
   }
 
   render() {
+    const {list, searchTerm} = this.state
+
     return (
       <div className="App">
-        <form>
-          <input
-            type="text"
-            onChange={this.onSearchChange}
-        /> </form>
-          {this.state.list.filter(isSearched(this.state.searchTerm)).map( item => 
-              <div key={item.objectID}> 
-                <span>
-                  <a href={item.url}>{item.title}</a>
-                </span>
-                <span>{item.author}</span>
-                <span>{item.num_comments}</span>
-                <span>{item.points}</span>
-                <span>
-                  <button onClick={() => this.onDismiss(item.objectID)} type="button">
-                    Dismiss
-                  </button>
-                </span>
-              </div>
-           )
-          }
+        <Search
+            value={searchTerm}
+            onChange={this.onSearchChange}>
+        </Search>
+        <Table 
+          list={list} 
+          searchTerm={searchTerm}
+          onDismiss={this.onDismiss}>
+        </Table>
       </div>
     );
   }
